@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback } from 'react-native';
-
+import {login_call} from '../../Utils/api.js'
 class Login extends React.Component{
     constructor()
     {
@@ -12,6 +12,17 @@ class Login extends React.Component{
 
     SwitchToRegister=()=>{
         this.props.navigation.navigate('Register')
+    }
+
+    Login=()=>{
+        let payload={
+            EMailId:"ts@gmail.com",
+            Password:"123456",
+            Phone:""
+        }
+        login_call(payload).then(result=>{
+            console.log(result)
+        })
     }
 
     render()
@@ -26,7 +37,7 @@ class Login extends React.Component{
                     <TextInput placeholder="Enter Password" secureTextEntry={true} style={style.LoginTextInputs}/>
 
                     <View style={style.ButtonContainer}>
-                        <Button title="Login" color="#f5bb18" />
+                        <Button title="Login" onPress={()=>this.Login()} color="#f5bb18" />
                     </View>
 
                     <Text style={style.FPText}>Dont Have an Account? </Text>
