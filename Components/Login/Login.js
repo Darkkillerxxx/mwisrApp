@@ -14,16 +14,16 @@ class Login extends React.Component{
         this.props.navigation.navigate('Register')
     }
 
-    Login=()=>{
-        let payload={
-            EMailId:"ts@gmail.com",
-            Password:"123456",
-            Phone:""
-        }
-        login_call(payload).then(result=>{
-            console.log(result)
-        })
-    }
+    // Login=()=>{
+    //     let payload={
+    //         EMailId:"ts@gmail.com",
+    //         Password:"123456",
+    //         Phone:""
+    //     }
+    //     login_call(payload).then(result=>{
+    //         console.log(result)
+    //     })
+    // }
 
     render()
     {
