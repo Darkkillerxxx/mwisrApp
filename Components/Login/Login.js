@@ -1,12 +1,24 @@
 import React,{Component} from 'react';
-import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback } from 'react-native';
-import {login_call} from '../../Utils/api.js'
+import { StyleSheet, Text, View,Image,TextInput,TouchableOpacity,Button } from 'react-native';
+import { connect }from 'react-redux'
+import {login_call, GetAuthHeader,CheckWhereToGo} from '../../Utils/api.js'
+import Spinner from 'react-native-loading-spinner-overlay';
+import {setLogin} from '../../store/Actions/ActionLogin'
+import Container from '../MiniComponent/Container'
+import Card from '../MiniComponent/Card'
+import BoldText from '../MiniComponent/BoldText'
+import NormalText from '../MiniComponent/NormalText'
+
 class Login extends React.Component{
     constructor()
     {
         super();
         this.state={
-
+            Email:"",
+            Password:"",
+            Phone:"",
+            ErrCode:0,
+            isLoading:false
         }
     }
 
@@ -14,50 +26,107 @@ class Login extends React.Component{
         this.props.navigation.navigate('Register')
     }
 
-    // Login=()=>{
-    //     let payload={
-    //         EMailId:"ts@gmail.com",
-    //         Password:"123456",
-    //         Phone:""
-    //     }
-    //     login_call(payload).then(result=>{
-    //         console.log(result)
-    //     })
-    // }
+    Validation=()=>{
+        if(this.state.Email === "")
+        {
+            this.setState({ErrCode:1})
+            this.setState({isLoading:false})
+            return false;
+        }
+        else if(this.state.Password === "")
+        {
+            this.setState({ErrCode:2})
+            this.setState({isLoading:false})
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    Login=()=>{
+        this.setState({isLoading:true})
+        if(this.Validation())
+        {
+            let payload={
+                EMailId:this.state.Email,
+                Password:this.state.Password,
+                Phone:""
+            }
+            login_call(payload).then(result=>{
+                if(result.IsSuccess && result.Data.UserId !== 0)
+                {
+                    let authHeader;
+                    let login_payload2={
+                      "EMailId":this.state.Email,
+                      "Password":this.state.Password,
+                      "Phone":result.Data["MobileNo"]
+                    }
+
+                    login_call(login_payload2).then(result => {
+                        if(result.IsSuccess)
+                        {
+                            authHeader=GetAuthHeader(
+                                this.state.Email,
+                                this.state.Password,
+                                result.Data.MobileNo,
+                                result.Data.AccessToken
+                            )
+
+                            let ReduxLoginPayload=result.Data
+                            ReduxLoginPayload.AuthHeader=authHeader
+                            this.props.onSetLogin(ReduxLoginPayload)
+                            this.setState({isLoading:false})
+                            this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))
+                        }
+                    })
+                }
+                else
+                {
+                    this.setState({isLoading:false})
+                    this.SwitchToRegister();
+                }
+            })
+        }
+       
+    }
 
     render()
     {
         return(
-            <View style={style.LoginContainer}>
-                <View style={style.LoginBox}>
+            <Container>
+                <Card>
+                <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading...'}
+                    textStyle={{color:'white'}}
+                    />
                     <Image style={style.Logo} source={require('../../assets/Images/logo.png')}/>
-                    <Text style={style.LoginText}>Login</Text>
-                    <Text style={style.LoginTextDesc}>Welcome Back,You Missed on good tips this is what happens!</Text>
-                    <TextInput placeholder="Enter Email or Mobile.No" style={style.LoginTextInputs}/>
-                    <TextInput placeholder="Enter Password" secureTextEntry={true} style={style.LoginTextInputs}/>
+                    <BoldText style={style.LoginText}>Login</BoldText>
+                    <NormalText style={style.LoginTextDesc}>Welcome Back,You Missed on Good Tips This Is What Happens!</NormalText>
+
+                    {this.state.ErrCode === 1 ? <NormalText style={style.ErrorText}>Email Cannot Be Left Empty</NormalText>:null}
+                    <TextInput placeholder="Enter Email or Mobile.No" onChangeText={(e)=>this.setState({Email:e})} style={style.LoginTextInputs}/>
+                    {this.state.ErrCode === 2 ? <NormalText style={style.ErrorText}>Password Cannot Be Left Empty</NormalText>:null}
+                    <TextInput placeholder="Enter Password" onChangeText={(e)=>this.setState({Password:e})} secureTextEntry={true} style={style.LoginTextInputs}/>
 
                     <View style={style.ButtonContainer}>
                         <Button title="Login" onPress={()=>this.Login()} color="#f5bb18" />
                     </View>
 
-                    <Text style={style.FPText}>Dont Have an Account? </Text>
-                    <TouchableWithoutFeedback onPress={()=>this.SwitchToRegister()}>
+                    <NormalText style={style.FPText}>Dont Have an Account? </NormalText>
+                    <TouchableOpacity onPress={()=>this.SwitchToRegister()}>
                         <Text style={style.SignUpText}>Sign up</Text>
-                    </TouchableWithoutFeedback>
+                    </TouchableOpacity>
 
-                </View>
-            </View>
+                </Card>
+            </Container>
         )
     }
 }
 
 const style=StyleSheet.create({
-    LoginContainer:{
-        flex:1,
-        backgroundColor:"#ebecf1",
-        justifyContent:'center',
-        alignItems:'center'
-    },
     LoginBox:{
         backgroundColor:'white',
         width:300,
@@ -114,7 +183,23 @@ const style=StyleSheet.create({
         fontSize:12,
         color:'#f5bb18',
         marginBottom:10
+    },
+    ErrorText:{
+        color:'red',
+        marginBottom:0
     }
 })
 
-export default Login;
+const mapStateToProps= state =>{
+    return{
+        loginState:state.login.login
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetLogin:(response)=>dispatch(setLogin(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Login);

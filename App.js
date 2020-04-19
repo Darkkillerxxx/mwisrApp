@@ -4,6 +4,15 @@ import * as style from './Styles/CommonStyles'
 import MwisrNavigation from './Navigator/MwisrNavigator'
 import {AppLoading} from 'expo'
 import * as Fonts from 'expo-font'
+import {createStore,combineReducers} from 'redux';
+import loginReducer from './store/Reducers/login'
+import {Provider} from 'react-redux'
+
+const rootReducer=combineReducers({
+  login:loginReducer
+})
+
+const store=createStore(rootReducer)
 
 const LoadFonts=()=>{
   return Fonts.loadAsync({
@@ -22,7 +31,9 @@ export default function App() {
   }
 
   return (
-    <MwisrNavigation />
+    <Provider store={store}>
+      <MwisrNavigation />
+    </Provider>
   );
 }
 

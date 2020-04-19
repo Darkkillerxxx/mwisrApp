@@ -5,7 +5,7 @@ import { StyleSheet, Text, View,Image,TouchableOpacity } from 'react-native';
 const BoldText = (props) => {
 
     return(
-        <Text style={styles.BoldText}>
+        <Text style={{...styles.BoldText,...props.style}}>
             {props.children}
         </Text>
     )

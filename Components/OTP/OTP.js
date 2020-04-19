@@ -25,7 +25,7 @@ class OTP extends React.Component{
                     </View>
 
                     <View style={style.OTPButtonContainer}>
-                        <Button title="Submit OTP" onPress={()=>this.props.navigation.navigate('Onboarding')} color="#f5bb18" />
+                        <Button title="Submit OTP" onPress={()=>this.props.navigation.navigate('Credit')} color="#f5bb18" />
                     </View>
 
                 </View>

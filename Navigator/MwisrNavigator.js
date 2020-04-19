@@ -8,6 +8,11 @@ import ContactDetails from '../Components/Onboarding/ContactDetails'
 import Registration from '../Components/Onboarding/Registration'
 import CompanyDetails from '../Components/Onboarding/CompanyDetails'
 import Onboarding from '../Components/Onboarding/Onboarding'
+import QuestionSet1 from '../Components/Onboarding/QuestionSet1'
+import QuestionSet2 from '../Components/Onboarding/QuestionSet2'
+import QuestionSet3 from '../Components/Onboarding/QuestionSet3'
+import Credit from '../Components/Onboarding/Credit'
+import Home from '../Components/Home/Home'
 
 const MwisrNavigation=createStackNavigator({
     Login:{
@@ -33,6 +38,21 @@ const MwisrNavigation=createStackNavigator({
     },
     Onboarding:{
         screen:Onboarding
+    },
+    QuestionSet1:{
+        screen:QuestionSet1
+    },
+    QuestionSet2:{
+        screen:QuestionSet2
+    },
+    QuestionSet3:{
+        screen:QuestionSet3
+    },
+    Credit:{
+        screen:Credit
+    },
+    Home:{
+        screen:Home
     }
 },{
     headerMode:'none'

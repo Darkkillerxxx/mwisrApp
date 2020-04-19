@@ -70,6 +70,45 @@ const headers = {
     );
   }
 
+ 
+  export function CheckWhereToGo(location){
+    switch(location)
+    {
+        case "VO":
+            return "OTP"
+
+        case "DB":
+            return "Home"
+
+        case "IU":
+            return "Onboarding"
+
+        case "CD":
+            return "Onboarding"
+
+        case "RD":
+            return "Onboarding"
+
+        case "CO":
+            return "Onboarding"
+        
+        case "CC": 
+            return "Onboarding"
+
+        case "Q1":
+              return "Onboarding"
+
+        case "Q2":
+              return "Onboarding"
+
+        case "Q3":
+          return "Onboarding"
+  
+        default:
+            return null;
+    }
+}
+
 
   export function GetAuthHeader(
     emailId = "",
