@@ -1,9 +1,13 @@
 import React,{Component} from 'react';
 import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 import Container from '../MiniComponent/Container'
 import Card from '../MiniComponent/Card'
 import BoldText from '../MiniComponent/BoldText'
 import NormalText from '../MiniComponent/NormalText'
+import { connect }from 'react-redux'
+import {setLogin} from '../../store/Actions/ActionLogin'
+import { signup_call, login_call, GetAuthHeader, CheckWhereToGo } from '../../Utils/api';
 
 class Register extends React.Component{
     constructor()
@@ -21,8 +25,95 @@ class Register extends React.Component{
         }
     }
 
-    onProceedToOTP=()=>{
-        this.props.navigation.navigate('OTP')
+    Validation=()=>{
+        if(this.state.FirstName.length < 3)
+        {
+            this.setState({ErrCode:1})
+            return false;
+        }
+        else if(this.state.LastName.length < 3)
+        {
+            this.setState({ErrCode:2})
+            return false;
+        }
+        else if(!this.state.Email.includes('@') || !this.state.Email.includes('.'))
+        {
+            this.setState({ErrCode:3})
+            return false;
+        }
+        else if(this.state.Contact.length < 10 || this.state.Contact.length >10)
+        {
+            this.setState({ErrCode:4})
+            return false;
+        }
+        else if(this.state.Password !== this.state.ConfirmPassword)
+        {
+            this.setState({ErrCode:5})
+            return false
+        }
+        else if(this.state.Password.length === 0)
+        {
+            this.setState({ErrCode:6})
+            return false
+        }
+        else
+        {
+            this.setState({ErrCode:0})
+            return true
+        }
+    }
+
+    onRegister=()=>{
+        // this.props.navigation.navigate('OTP')
+        if(this.Validation())
+        {
+            this.setState({isLoading:true})
+            let RegisterPayload={
+                FirstName: this.state.Firstname,
+                LastName: this.state.LastName,
+                EMailId: this.state.Email,
+                PhoneNumber:"+91"+this.state.Contact,
+                Password: this.state.Password,
+                ForImmediateOwnerId:null
+              }
+              
+              signup_call(RegisterPayload).then(result=>{
+                  console.log("81",result)
+                if(result.IsSuccess)
+                {
+                  if(result.Data[0].Action === "CredentialsUpdated" || result.Data[0].Action === null )
+                  {
+                      login_call({
+                        EMailId: this.state.Email,
+                        Password:this.state.Password,
+                        Phone:this.state.Contact 
+                      }).then(result=>{
+                          if(result.IsSuccess)
+                          {
+                          let authHeader=GetAuthHeader(
+                                this.state.Email,
+                                this.state.Password,
+                                this.state.Contact,
+                                result.Data.AccessToken
+                            )
+                            
+                            let ReduxLoginPayload=result.Data
+                            ReduxLoginPayload.AuthHeader=authHeader
+                            ReduxLoginPayload.Password=this.state.Password
+                            this.props.onSetLogin(ReduxLoginPayload)
+                            console.log("101",this.props.loginState)
+                            this.setState({isLoading:false})
+                            this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))
+                          }
+                      })
+                  }
+                }
+                else
+                {
+                    this.setState({isLoading:false})
+                }
+              })
+        }
     }
 
     render()
@@ -30,9 +121,14 @@ class Register extends React.Component{
         return(
             <Container>
                 <Card>
+                    <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading...'}
+                    textStyle={{color:'white'}}
+                    />
                     <Image style={style.Logo} source={require('../../assets/Images/logo.png')}/>
                     <Text style={style.RegisterText}>Sign Up</Text>
-                    <Text style={style.RegisterTextDesc}>Welcome To WealthyFox,Stay Updated with Daily Tips</Text>
+                    <Text style={style.RegisterTextDesc}>Welcome To Mwisr,Stay Updated with Daily Tips</Text>
                     {this.state.ErrCode === 1 ? <NormalText style={style.ErrorText}>Firstname Should Be More Than 3 Letters </NormalText>:null}
                     <TextInput placeholder="First Name" onChangeText={(e)=>this.setState({FirstName:e})} style={style.RegisterInputs}/>
                     {this.state.ErrCode === 2 ? <NormalText style={style.ErrorText}>LastName Should Be More Than 3 Letters </NormalText>:null}
@@ -41,12 +137,12 @@ class Register extends React.Component{
                     <TextInput placeholder="Enter Email" onChangeText={(e)=>this.setState({Email:e})} style={style.RegisterInputs}/>
                     {this.state.ErrCode === 4 ? <NormalText style={style.ErrorText}>Mobile No. Should Be Valid </NormalText>:null}
                     <TextInput placeholder="Enter Mobile" onChangeText={(e)=>this.setState({Contact:e})}  style={style.RegisterInputs}/>
-                    {this.state.ErrCode === 5 ? <NormalText style={style.ErrorText}>Password And Confirm Password Should Match</NormalText>:null}
+                    {this.state.ErrCode === 5 ? <NormalText style={style.ErrorText}>Password And Confirm Password Should Match</NormalText>:this.state.ErrCode === 6 ? <NormalText style={style.ErrorText}>Password Cannot Be Left Empty</NormalText>:null}
                     <TextInput placeholder="Enter Password" onChangeText={(e)=>this.setState({Password:e})} secureTextEntry={true} style={style.RegisterInputs}/>
                     <TextInput placeholder="Confirm Password" onChangeText={(e)=>this.setState({ConfirmPassword:e})} secureTextEntry={true} style={style.RegisterInputs}/>
 
                     <View style={style.ButtonContainer}>
-                        <Button title="Create Account" onPress={()=>this.onProceedToOTP()} color="#f5bb18" />
+                        <Button title="Create Account" onPress={()=>this.onRegister()} color="#f5bb18" />
                     </View>
                 </Card>
             </Container>
@@ -113,4 +209,16 @@ const style=StyleSheet.create({
 
 })
 
-export default Register;
+const mapStateToProps= state =>{
+    return{
+        loginState:state.login.login
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetLogin:(response)=>dispatch(setLogin(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Register);

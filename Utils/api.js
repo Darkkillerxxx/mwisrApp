@@ -6,7 +6,10 @@ const base_url_wealthyFox="https://wfanalytics.mwisr.com//api//"
 const base_url_Mwisr="https://wfanalytics.mwisr.com//api//"
 
 const endpoint_url={
-    login: base_url_wealthyFox+"Authentication/Login/"
+    login: base_url_wealthyFox+"Authentication/Login/",
+    quick_register:base_url_wealthyFox + "/AnalystRegistration/QuickRegister",
+    send_otp: base_url_wealthyFox+"AnalystRegistration/SendOTP",
+    verify_otp: base_url_wealthyFox+"AnalystRegistration/VerifyOTP"
 }
 
 const headers = {
@@ -108,6 +111,30 @@ const headers = {
             return null;
     }
 }
+
+export function send_OTP(UserId,authHeader) {
+  // console.log("426",emailId)
+  // console.log(password, phno);
+  // let authHeader = GetAuthHeader(emailId, password,phno);
+  const data = {
+    AnalystId: UserId
+  };
+  return apiCall(endpoint_url["send_otp"], "GET", data, authHeader).then(
+    data => JSON.parse(data)
+  );
+}
+
+export function verify_OTP(OTP,authHeader) {
+  const data = {
+    OTPNumber: OTP
+  };
+
+  return apiCall(endpoint_url["verify_otp"], "GET", data, authHeader).then(
+    data => JSON.parse(data)
+  );
+}
+
+
 
 
   export function GetAuthHeader(
@@ -248,3 +275,16 @@ const headers = {
         console.log(err);
       });
   }
+
+  export function signup_call(data) {
+    let authHeader = GetAuthHeader(
+      data["EMailId"],
+      data["Password"],
+      data["PhoneNumber"]
+    );
+  
+    return apiCall(endpoint_url["quick_register"], "POST", data, authHeader).then(
+      data => JSON.parse(data)
+    );
+  }
+  

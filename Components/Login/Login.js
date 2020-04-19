@@ -76,7 +76,9 @@ class Login extends React.Component{
 
                             let ReduxLoginPayload=result.Data
                             ReduxLoginPayload.AuthHeader=authHeader
+                            ReduxLoginPayload.Password=this.state.Password
                             this.props.onSetLogin(ReduxLoginPayload)
+                            console.log("81",this.props.loginState)
                             this.setState({isLoading:false})
                             this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))
                         }

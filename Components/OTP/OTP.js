@@ -1,35 +1,116 @@
 import React,{Component} from 'react';
 import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback,findNodeHandle } from 'react-native';
-
+import { connect }from 'react-redux'
+import {login_call, GetAuthHeader,CheckWhereToGo,send_OTP,verify_OTP} from '../../Utils/api.js'
+import Spinner from 'react-native-loading-spinner-overlay';
+import {setLogin} from '../../store/Actions/ActionLogin'
+import Container from '../MiniComponent/Container'
+import Card from '../MiniComponent/Card'
+import BoldText from '../MiniComponent/BoldText'
+import NormalText from '../MiniComponent/NormalText'
 
 class OTP extends React.Component{
     constructor()
     {
         super();
         this.state={
-
+            OTP:"",
+            ErrCode:0,
+            IsLoading:false
         }
     }
+
+    componentDidMount()
+    {
+        console.log("mount")
+        send_OTP(this.props.loginState.UserId,this.props.loginState.AuthHeader).then(result=>{
+            console.log(result)
+            if(result.IsSuccess)
+            {
+                console.log("OTP Sent")
+            }
+        })
+    }
+
+    Validation=()=>{
+        if(this.state.OTP.length < 4 || this.state.OTP.length > 4 )
+        {
+            this.setState({ErrCode:1})
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    
+    onSubmitOTP=()=>{
+        if(this.Validation())
+        {
+            this.setState({isLoading:true})
+            verify_OTP(this.state.OTP,this.props.loginState.AuthHeader).then(result=>{
+                console.log(result)
+                if(result.IsSuccess)
+                {
+                    let payload={
+                        EMailId:this.props.loginState.EMailId,
+                        Password:this.props.loginState.Password,
+                        Phone:this.props.loginState.MobileNo
+                    }
+
+                    login_call(payload).then(result=>{
+                        if(result.IsSuccess)
+                        {
+                            let authHeader=GetAuthHeader(
+                                this.props.loginState.EMailId,
+                                this.props.loginState.Password,
+                                this.props.loginState.MobileNo,
+                                result.Data.AccessToken
+                            )
+
+                            let ReduxLoginPayload=result.Data
+                            ReduxLoginPayload.AuthHeader=authHeader
+                            this.props.onSetLogin(ReduxLoginPayload)
+                            this.setState({isLoading:false})
+                            this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))
+                        }
+                    })
+                }
+            })
+        }
+        else
+        {
+            this.setState({isLoading:false})
+        }
+    }
+
+
 
     render()
     {
         return(
-            <View style={style.OTPContainer}>
-                <View style={style.OTPBox}>
+            <Container>
+                <Card>
+                    <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading...'}
+                    textStyle={{color:'white'}}
+                    />
                     <Image style={style.OTPLogo} source={require('../../assets/Images/otp.png')}/>
-                    <Text style={style.OTPText}>Enter OTP</Text>
-                    <Text style={style.OTPTextDesc}>We have Sent You a 4 digit OTP Number</Text>
-                        
+                    <BoldText style={style.OTPText}>Enter OTP</BoldText>
+                    <NormalText style={style.OTPTextDesc}>We have Sent You a 4 digit OTP Number</NormalText>
+                    {this.state.ErrCode === 1 ? <NormalText style={style.ErrorText}>Please Enter a Valid OTP</NormalText>:null}           
                     <View style={style.OtpInputContainer}>
-                        <TextInput placeholder="Enter OTP" maxLength={4} keyboardType="number-pad" style={style.OTPInput}/>
+                        <TextInput placeholder="Enter OTP" onChangeText={(e)=>this.setState({OTP:e})} maxLength={4} keyboardType="number-pad" style={style.OTPInput}/>
                     </View>
 
                     <View style={style.OTPButtonContainer}>
-                        <Button title="Submit OTP" onPress={()=>this.props.navigation.navigate('Credit')} color="#f5bb18" />
+                        <Button title="Submit OTP" onPress={()=>this.onSubmitOTP()} color="#f5bb18" />
                     </View>
 
-                </View>
-            </View>
+                </Card>
+            </Container>
         )
     }
 }
@@ -90,7 +171,23 @@ const style=StyleSheet.create({
         marginVertical:15,
         borderRadius:30,
         overflow:'hidden'
+    },
+    ErrorText:{
+        color:'red',
+        marginBottom:0
     }
 })
 
-export default OTP;
+const mapStateToProps= state =>{
+    return{
+        loginState:state.login.login
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetLogin:(response)=>dispatch(setLogin(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(OTP);
