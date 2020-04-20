@@ -206,7 +206,6 @@ const style=StyleSheet.create({
         color:'red',
         marginBottom:0
     }
-
 })
 
 const mapStateToProps= state =>{

@@ -1,5 +1,7 @@
 import React,{Component} from 'react';
 import { StyleSheet,View,TextInput,Button,ScrollView } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {get_credit_packages,apply_credit_package} from '../../Utils/api'
 import Container from '../MiniComponent/Container'
 import Card from '../MiniComponent/Card'
 import NormalText from '../MiniComponent/NormalText';
@@ -98,13 +100,73 @@ class Credit extends React.Component{
                   Calls:"Unlimited",
                   TelegramSupport:"Yes"
                 }
-              ]
+              ],
+              ReceivedPackages:[]
         }
+    }
+
+    componentDidMount()
+    {
+        get_credit_packages(this.props.authHeader).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ReceivedPackages:result.Data})
+            }
+        })
+    }
+
+    ApplyCreditPackage=(LicenseId)=>{
+        this.setState({isLoading:true})
+        let SelectedPackageToApply
+        this.state.ReceivedPackages.forEach(element => {
+          if(element.LicenseId === LicenseId)
+          {
+            SelectedPackageToApply=element
+          }
+          else if(element.LicenseId === 12 && LicenseId === 6)
+          {
+            SelectedPackageToApply=element
+          }
+        });
+        console.log(SelectedPackageToApply)
+
+        let ApplyCreditPayload={
+            AppliedForPackageId:SelectedPackageToApply.LicenseId,
+            AppliedForRevisionId:1,
+            MaxAnalyst:SelectedPackageToApply.MaxAnalyst,
+            MaxAnalystByDeligatee:SelectedPackageToApply.MaxAnalystByDeligatee,
+            MaxCustomer:SelectedPackageToApply.MaxCustomer,
+            MaxCustomerByDeligatee:SelectedPackageToApply.MaxCustomerByDeligatee,
+            MaxSubBroker:SelectedPackageToApply.MaxSubBroker,
+            MaxSubBrokerByDeligatee:SelectedPackageToApply.MaxSubBrokerByDeligatee,
+            MaxEmployee:SelectedPackageToApply.MaxSubBroker,
+            MaxPackage:SelectedPackageToApply.MaxPackage,
+            MaxPackageByDeligatee:SelectedPackageToApply.MaxPackageByDeligatee,
+            MaxCall:SelectedPackageToApply.MaxCall,
+            MaxCallByDeligatee:SelectedPackageToApply.MaxCallByDeligatee,
+            MaxReport:SelectedPackageToApply.MaxReport,
+            MaxReportByDeligatee:SelectedPackageToApply.MaxReportByDeligatee,
+            TelegramSupport:SelectedPackageToApply.TelegramSupport,
+            MaxTelegramPackage:SelectedPackageToApply.MaxTelegramPackage,
+            MaxTelegramPackageByDeligatee:SelectedPackageToApply.MaxTelegramPackageByDeligatee,
+            AddOnRequested:false,
+            ReNewRequested:false,
+            UpgradeRequested:true
+          }
+
+          apply_credit_package(this.props.authHeader,ApplyCreditPayload).then(result=>{
+            console.log("CC",this.props.authHeader)
+            if(result.IsSuccess)
+            {
+              this.props.LoginCall()
+              this.setState({isLoading:false})
+            }
+          })
     }
     
     render()
     {
-    let ShowPackages=this.state.AllCreditPackages.map(result=>{
+    let ShowPackages=this.state.AllCreditPackages.map((result,index)=>{
         return(
             <Card style={style.CardStyle}>
                     <View style={{width:'100%',height:100,backgroundColor:`${result.Color}`,alignItems:'center',paddingTop:10}}>
@@ -149,7 +211,7 @@ class Credit extends React.Component{
            
 
                     <View style={style.ButtonContainer}>
-                        <Button title="Apply" color={`${result.Color}`}/>
+                        <Button title="Apply" onPress={()=>this.ApplyCreditPackage(index+1)} color={`${result.Color}`}/>
                     </View>
                 </Card>
         )
@@ -157,6 +219,12 @@ class Credit extends React.Component{
         return(
             <ScrollView>
                 <Container>
+                    <Spinner
+                        visible={this.state.isLoading}
+                        textContent={'Loading...'}
+                        textStyle={{color:'white'}}
+                    />
+                    <BoldText style={{marginTop:25}}>Choose Credit Package</BoldText>
                     {ShowPackages}
                 </Container>
             </ScrollView>
@@ -183,7 +251,7 @@ const style=StyleSheet.create({
      OverrideBoldPrice:{
         color:'white',
         fontSize:24,
-        marginVertical:0
+        marginTop:20
     },
     OverrideNormalText:{
         opacity:0.6,

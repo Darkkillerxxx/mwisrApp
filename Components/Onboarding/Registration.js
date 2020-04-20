@@ -1,105 +1,189 @@
 import React,{component} from 'react';
 import { StyleSheet,TextInput,Button,View,ScrollView } from 'react-native';
+import {RegisterRegitrationDetails} from '../../Utils/api'
+import Spinner from 'react-native-loading-spinner-overlay';
 import Card from '../MiniComponent/Card'
 import BoldText from '../MiniComponent/BoldText'
 import NormalText from '../MiniComponent/NormalText'
-
+import Container from '../MiniComponent/Container'
 
 class Registration extends React.Component{
     constructor()
     {
         super();
         this.state={
+            NSEMemberId:"",
+            BSEMemberId:"",
+            MCXMemeberId:"",
+            NCDEXMemberId:"",
+            CSDLNo:"",
+            NSDLNo:"",
+            MSEINo:"",
+            SEBINo:"",
+            ResearchAnalystNo:"",
+            ARNNo:"",
+            IRDANo:"",
+            AssetManegmentNo:"",
+            PMSNo:"",
+            CINNo:"",
+            InvestmentAdvisoryNo:"",
+            isLoading:false,
+            ErrorCode:0
+        }
+    }
 
+    Validation()
+    {
+        if(this.state.SEBINo === "")
+        {
+            this.setState({ErrorCode:1})
+            return false
+        }
+        else if(  this.state.CINNo === "")
+        {
+            this.setState({ErrorCode:2})
+            return false
+        }
+        else
+        {
+            this.setState({ErrorCode:0})
+            return true;
+        }   
+    }
+
+    onRegistrationDetailsSubmit=()=>{
+        if(this.Validation())
+        {
+            this.setState({isLoading:true})
+            let RegistrationPayload={
+                MobileNo :this.props.Contact.includes('+91') ? this.props.Contact.substring(3):this.props.Contact,
+                NSEMemberId : this.state.NSEMemberId,
+                BSEMemberId : this.state.BSEMemberId,
+                MCXMemberId : this.state.MCXMemberId,
+                NCDEXMemberId : this.state.NCDEXMemberId,
+                CDSLNo : this.state.CSDLNo,
+                NSDLNo : this.state.NSDLNo,
+                MSEINo  :this.state.MSEINo,
+                SEBIRegistrationNo : this.state.SEBINo,
+                ResearchAnalystNo :  this.state.ResearchAnalystNo,
+                InvestmentAdvisorNo : this.state.InvestmentAdvisoryNo,
+                ARNNo  : this.state.ARNNo,
+                IRDACorporateAgentNo : this.state.IRDANo,
+                AssetManagementCompanyNo:this.state.AssetManegmentNo,
+                PMSNo : this.state.PMSNo,
+                CINNo  : this.state.CINNo
+                }
+            
+                RegisterRegitrationDetails(RegistrationPayload,this.props.authHeader).then(result=>{
+                    console.log(result)
+                    if(result.IsSuccess)
+                    {
+                        this.props.LoginCall()
+                        this.setState({isLoading:false})
+                    }
+                })
         }
     }
 
     render()
     {
         return(
-        <ScrollView>
-            <View style={styles.RegistrationContainer}>
+      
+            <Container style={styles.RegistrationContainer}>
+                <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading...'}
+                    textStyle={{color:'white'}}
+                    />
                 <Card>
                     <BoldText>Registration Details</BoldText>
                     <NormalText>Fields Marked with (*) are Mandatory</NormalText>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>NSE Member Id</NormalText>
-                        <TextInput placeholder="Enter NSE Member ID" style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter NSE Member ID" onChangeText={(e)=>this.setState({NSEMemberId:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>BSE Member Id</NormalText>
-                        <TextInput placeholder="Enter BSE Member ID" style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter BSE Member ID" onChangeText={(e)=>this.setState({BSEMemberId:e})} style={styles.TextInput}></TextInput>
                     </View>
                     
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>NCDEX Member Id</NormalText>
-                        <TextInput placeholder="Enter NCDEX Member ID" style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter NCDEX Member ID" onChangeText={(e)=>this.setState({NCDEXMemberId:e})} style={styles.TextInput}></TextInput>
+                    </View>
+
+                    <View style={styles.TextInputContainer}>
+                        <NormalText style={styles.OverideNormalText}>MCX Member Id</NormalText>
+                        <TextInput placeholder="Enter NCDEX Member ID" onChangeText={(e)=>this.setState({MCXMemberId:e})} style={styles.TextInput}></TextInput>
                     </View>
                     
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>CSDL No.</NormalText>
-                        <TextInput placeholder="Enter CSDL No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter CSDL No." onChangeText={(e)=>this.setState({CSDLNo:e})}  style={styles.TextInput}></TextInput>
                     </View>
                     
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>NSDL NO.</NormalText>
-                        <TextInput placeholder="Enter NSDL No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter NSDL No." onChangeText={(e)=>this.setState({NSDLNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>MSEI No.</NormalText>
-                        <TextInput placeholder="Enter MSEI No." style={styles.TextInput}></TextInput>
+                       
+                        <TextInput placeholder="Enter MSEI No." onChangeText={(e)=>this.setState({MSEINo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>(*)SEBI Registration No.</NormalText>
-                        <TextInput placeholder="Enter SEBI No." style={styles.TextInput}></TextInput>
+                        {this.state.ErrorCode === 1 ? <NormalText style={styles.ErrorText}>SEBI No.Cannot Be Left Blank</NormalText>:null}
+                        <TextInput placeholder="Enter SEBI No." onChangeText={(e)=>this.setState({SEBINo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>Research Analyst No.</NormalText>
-                        <TextInput placeholder="Enter Research Analyst No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter Research Analyst No." onChangeText={(e)=>this.setState({ResearchAnalystNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>ARN No.</NormalText>
-                        <TextInput placeholder="Enter ARN No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter ARN No." onChangeText={(e)=>this.setState({ARNNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>Investment Advisory No.</NormalText>
-                        <TextInput placeholder="Enter Investment Advisory No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter Investment Advisory No." onChangeText={(e)=>this.setState({InvestmentAdvisoryNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>IRDAC Corporate Agency No.</NormalText>
-                        <TextInput placeholder="Enter IRDAC Corporate Agency No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter IRDAC Corporate Agency No." onChangeText={(e)=>this.setState({IRDANo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>PMS No.</NormalText>
-                        <TextInput placeholder="Enter PMS No." style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter PMS No." onChangeText={(e)=>this.setState({PMSNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>(*) CIN No.</NormalText>
-                        <TextInput placeholder="Enter PMS No." style={styles.TextInput}></TextInput>
+                        {this.state.ErrorCode === 2 ? <NormalText style={styles.ErrorText}>CIN No. Cannot Be Left Blank</NormalText>:null}
+                        <TextInput placeholder="Enter PMS No." onChangeText={(e)=>this.setState({CINNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.TextInputContainer}>
                         <NormalText style={styles.OverideNormalText}>Asset Management Company Number</NormalText>
-                        <TextInput placeholder="Enter Asset Management Company Number" style={styles.TextInput}></TextInput>
+                        <TextInput placeholder="Enter Asset Management Company Number" onChangeText={(e)=>this.setState({AssetManegmentNo:e})} style={styles.TextInput}></TextInput>
                     </View>
 
                     <View style={styles.ButtonContainer}>
-                        <Button title="Proceed" onPress={()=>this.props.navigation.navigate('CompanyDetails')} color="#f5bb18" />
+                        <Button title="Proceed" onPress={()=>this.onRegistrationDetailsSubmit()} color="#f5bb18" />
                     </View>
                 </Card>
 
-            </View>
-        </ScrollView>
+            </Container>
+      
         )
     }
 }
@@ -138,6 +222,10 @@ const styles=StyleSheet.create({
         marginVertical:15,
         borderRadius:30,
         overflow:'hidden'
+    },
+    ErrorText:{
+        color:'red',
+        marginBottom:0
     }
 })
 

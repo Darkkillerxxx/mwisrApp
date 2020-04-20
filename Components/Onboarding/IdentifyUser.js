@@ -22,7 +22,7 @@ class IdentifyUser extends React.Component{
                 UpdateUserIdentification(this.props.authHeader,this.props.UserId,type).then(result=>{
                     if(result.IsSuccess)
                     {
-                      this.props.Logincall()
+                      this.props.LoginCall()
                       this.setState({isLoading:false})
                     }
                 })

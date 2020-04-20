@@ -12,8 +12,11 @@ const endpoint_url={
     verify_otp: base_url_wealthyFox+"AnalystRegistration/VerifyOTP",
     IdentifyYourself:base_url_Mwisr+"AnalystRegistration/IdentifyUser",
     UpdateUserIdentification:base_url_Mwisr+"/AnalystRegistration/UpdateUserIdentification",
-    ContactDetails:base_url_Mwisr+"Broker/UpsertContactDetail"
-    
+    ContactDetails:base_url_Mwisr+"Broker/UpsertContactDetail",
+    RegistrationDetails:base_url_Mwisr+"Broker/UpsertRegistrationDetail",
+    UpsertCompanyDetail:base_url_Mwisr+"Broker/UpsertCompanyDetail",
+    GetCreditPackages:base_url_wealthyFox + "/UserLicense/GetCreditPackages",
+    ApplyCreditPackage:base_url_wealthyFox+"UserLicense/ApplyCreditPackage/",
 }
 
 const headers = {
@@ -318,6 +321,31 @@ export function RegisterContactDetails(payload,authHeader){
   return apiCall(endpoint_url["ContactDetails"], "POST", payload, authHeader).then(data => JSON.parse(data));
 }
 
+export function RegisterRegitrationDetails(payload,authHeader){
+  return apiCall(endpoint_url["RegistrationDetails"], "POST", payload, authHeader).then(data => JSON.parse(data));
+}
+
+export function RegisterCompanyDetails(payload,authHeader){
+  return apiCall(endpoint_url["UpsertCompanyDetail"], "POST", payload, authHeader).then(data => JSON.parse(data));
+}
 
 
-  
+export function get_credit_packages(authHeader) {
+  return apiCall(endpoint_url["GetCreditPackages"], "GET", {}, authHeader)
+    .then(response => {
+      return JSON.parse(response);
+    })
+    .catch(err => {
+      console.log(err, "err");
+    });
+}
+
+export function apply_credit_package(authHeader, data) {
+  return apiCall(endpoint_url["ApplyCreditPackage"], "GET", data, authHeader)
+    .then(response => {
+      return JSON.parse(response);
+    })
+    .catch(err => {
+      console.log(err, "err");
+    });
+}

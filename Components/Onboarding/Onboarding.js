@@ -88,10 +88,11 @@ class OnBoarding extends React.Component{
                         labels={labels}
                     />
                     {console.log("In Render",this.state.OnboardingState)}
-                    {this.state.OnboardingState === "IU" ? <IdentifyUser UserTypeId={this.props.loginState.UserTypeId} authHeader={this.props.loginState.AuthHeader} UserId={this.props.loginState.UserId} Logincall={this.CommonLoginCall}/>:
-                    this.state.OnboardingState === "CD" ?  <ContactDetails authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} Name={this.props.loginState.UserName} UserType={this.props.loginState.UserTypeId} Logincall={this.CommonLoginCall} />:
-                    this.state.OnboardingState === "RD" ? <Registration />:
-                    this.state.OnboardingState === "CC" ? <Credit />:
+                    {this.state.OnboardingState === "IU" ? <IdentifyUser UserTypeId={this.props.loginState.UserTypeId} authHeader={this.props.loginState.AuthHeader} UserId={this.props.loginState.UserId} LoginCall={this.CommonLoginCall}/>:
+                    this.state.OnboardingState === "CD" ?  <ContactDetails authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} Name={this.props.loginState.UserName} UserType={this.props.loginState.UserTypeId} LoginCall={this.CommonLoginCall} />:
+                    this.state.OnboardingState === "RD" ? <Registration authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} LoginCall={this.CommonLoginCall}/>:
+                    this.state.OnboardingState === "CO" ? <CompanyDetails  authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} LoginCall={this.CommonLoginCall}/> :
+                    this.state.OnboardingState === "CC" ? <Credit authHeader={this.props.loginState.AuthHeader}/>:
                     this.state.OnboardingState === "Q1" ? <QuestionSet1 />:
                     this.state.OnboardingState === "Q2" ? <QuestionSet2 />:
                     this.state.OnboardingState === "Q3" ? <QuestionSet3 />:null}
