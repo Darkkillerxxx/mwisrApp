@@ -69,7 +69,7 @@ class Register extends React.Component{
         {
             this.setState({isLoading:true})
             let RegisterPayload={
-                FirstName: this.state.Firstname,
+                FirstName: this.state.FirstName,
                 LastName: this.state.LastName,
                 EMailId: this.state.Email,
                 PhoneNumber:"+91"+this.state.Contact,

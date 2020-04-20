@@ -4,7 +4,7 @@ import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback
 
 const Container = (props)=>{
     return(
-        <View style={style.Container}>
+        <View style={{...style.Container,...props.style}}>
             {props.children}
         </View>
     )

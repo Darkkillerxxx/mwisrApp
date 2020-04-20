@@ -9,7 +9,11 @@ const endpoint_url={
     login: base_url_wealthyFox+"Authentication/Login/",
     quick_register:base_url_wealthyFox + "/AnalystRegistration/QuickRegister",
     send_otp: base_url_wealthyFox+"AnalystRegistration/SendOTP",
-    verify_otp: base_url_wealthyFox+"AnalystRegistration/VerifyOTP"
+    verify_otp: base_url_wealthyFox+"AnalystRegistration/VerifyOTP",
+    IdentifyYourself:base_url_Mwisr+"AnalystRegistration/IdentifyUser",
+    UpdateUserIdentification:base_url_Mwisr+"/AnalystRegistration/UpdateUserIdentification",
+    ContactDetails:base_url_Mwisr+"Broker/UpsertContactDetail"
+    
 }
 
 const headers = {
@@ -287,4 +291,33 @@ export function verify_OTP(OTP,authHeader) {
       data => JSON.parse(data)
     );
   }
+
+  export function identifyYourself(userTypeId,userType, authHeader) {
+    const data = {
+      IdentifyYourself: userType,
+      isOwner: userTypeId === 0 ? true:false
+    };
+  
+    return apiCall(endpoint_url["IdentifyYourself"], "POST", data, authHeader).then(data => JSON.parse(data));
+  }
+
+  
+export function UpdateUserIdentification(authHeader,UserId,UserType)
+{
+  let payload={
+    userId:UserId,
+    userType:UserType
+  }
+  return apiCall(endpoint_url["UpdateUserIdentification"], "GET", payload, authHeader).then(
+    data => JSON.parse(data)
+  );
+}
+
+
+export function RegisterContactDetails(payload,authHeader){
+  return apiCall(endpoint_url["ContactDetails"], "POST", payload, authHeader).then(data => JSON.parse(data));
+}
+
+
+
   

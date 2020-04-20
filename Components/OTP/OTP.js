@@ -22,7 +22,7 @@ class OTP extends React.Component{
 
     componentDidMount()
     {
-        console.log("mount")
+        console.log("REDUX",this.props.loginState.Password)
         send_OTP(this.props.loginState.UserId,this.props.loginState.AuthHeader).then(result=>{
             console.log(result)
             if(result.IsSuccess)
@@ -70,7 +70,9 @@ class OTP extends React.Component{
                             )
 
                             let ReduxLoginPayload=result.Data
+                            console.log("While Submitting OTP",ReduxLoginPayload)
                             ReduxLoginPayload.AuthHeader=authHeader
+                            ReduxLoginPayload.Password=this.props.loginState.Password
                             this.props.onSetLogin(ReduxLoginPayload)
                             this.setState({isLoading:false})
                             this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))

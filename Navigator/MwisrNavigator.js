@@ -24,32 +24,8 @@ const MwisrNavigation=createStackNavigator({
     OTP:{
         screen:OTP
     },
-    Identify:{
-        screen:IdentifyUser
-    },
-    ContactDetails:{
-        screen:ContactDetails
-    },
-    RegistrationDetails:{
-        screen:Registration
-    },
-    CompanyDetails:{
-        screen:CompanyDetails
-    },
     Onboarding:{
         screen:Onboarding
-    },
-    QuestionSet1:{
-        screen:QuestionSet1
-    },
-    QuestionSet2:{
-        screen:QuestionSet2
-    },
-    QuestionSet3:{
-        screen:QuestionSet3
-    },
-    Credit:{
-        screen:Credit
     },
     Home:{
         screen:Home
