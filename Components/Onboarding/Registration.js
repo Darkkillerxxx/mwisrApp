@@ -75,7 +75,7 @@ class Registration extends React.Component{
                 }
             
                 RegisterRegitrationDetails(RegistrationPayload,this.props.authHeader).then(result=>{
-                    console.log(result)
+                    console.log("78",result)
                     if(result.IsSuccess)
                     {
                         this.props.LoginCall()

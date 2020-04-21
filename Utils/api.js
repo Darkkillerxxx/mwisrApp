@@ -17,6 +17,7 @@ const endpoint_url={
     UpsertCompanyDetail:base_url_Mwisr+"Broker/UpsertCompanyDetail",
     GetCreditPackages:base_url_wealthyFox + "/UserLicense/GetCreditPackages",
     ApplyCreditPackage:base_url_wealthyFox+"UserLicense/ApplyCreditPackage/",
+    UpsertCustomerAnswers:base_url_Mwisr+"AnalystRegistration/UpsertCustomerAnswers"
 }
 
 const headers = {
@@ -348,4 +349,25 @@ export function apply_credit_package(authHeader, data) {
     .catch(err => {
       console.log(err, "err");
     });
+}
+
+export function upsertCustomerAnswers(authHeader, params) {
+  const { userId, questionId, optionId, optionSubId, optionValue } = params;
+  return apiCall(
+    endpoint_url["UpsertCustomerAnswers"],
+    "GET",
+    {
+      userId,
+      questionId,
+      optionId,
+      optionSubId,
+      optionValue
+    },
+    authHeader
+  ).then(response => {
+    return JSON.parse(response);
+  })
+  .catch(err => {
+    console.log(err, "err");
+  });
 }

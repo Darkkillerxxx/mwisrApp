@@ -110,7 +110,10 @@ class Credit extends React.Component{
         get_credit_packages(this.props.authHeader).then(result=>{
             if(result.IsSuccess)
             {
-                this.setState({ReceivedPackages:result.Data})
+                console.log("While getting Packages",this.props.authHeader)
+                this.setState({ReceivedPackages:result.Data},()=>{
+                    this.props.LoginCall()
+                })
             }
         })
     }
@@ -154,8 +157,9 @@ class Credit extends React.Component{
             UpgradeRequested:true
           }
 
+          console.log("While Applying Package",this.props.authHeader)
           apply_credit_package(this.props.authHeader,ApplyCreditPayload).then(result=>{
-            console.log("CC",this.props.authHeader)
+            console.log("CC result",result)
             if(result.IsSuccess)
             {
               this.props.LoginCall()

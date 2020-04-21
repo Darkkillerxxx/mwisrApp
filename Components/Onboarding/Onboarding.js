@@ -15,7 +15,7 @@ import QuestionSet3 from './QuestionSet3'
 import Credit from './Credit'
 
 
-const labels = ["Cart","Delivery Address","Order Summary","Payment Method","Track"];
+const labels = ["Identify YourSelf","Contact Details","Registration Details","Company Details","Choose Credit"];
 const customStyles = {
     stepIndicatorSize: 25,
     currentStepIndicatorSize:30,
@@ -45,7 +45,8 @@ class OnBoarding extends React.Component{
     {
         super();
         this.state={
-            OnboardingState:""
+            OnboardingState:"",
+            Labels:[]
         }
     }
 
@@ -72,7 +73,15 @@ class OnBoarding extends React.Component{
                 ReduxLoginPayload.AuthHeader=authHeader
                 ReduxLoginPayload.Password=this.props.loginState.Password
                 this.props.onSetLogin(ReduxLoginPayload)
-                this.setState({OnboardingState:result.Data.WhereToGo})
+                if(result.Data.WhereToGo !== "DB")
+                {
+                    this.setState({OnboardingState:result.Data.WhereToGo})
+                }
+                else if(result.Data.WhereToGo === "DB")
+                {
+                    this.props.navigation.navigate(CheckWhereToGo(result.Data.WhereToGo))
+                }
+                
               }
             })
     }
@@ -92,10 +101,10 @@ class OnBoarding extends React.Component{
                     this.state.OnboardingState === "CD" ?  <ContactDetails authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} Name={this.props.loginState.UserName} UserType={this.props.loginState.UserTypeId} LoginCall={this.CommonLoginCall} />:
                     this.state.OnboardingState === "RD" ? <Registration authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} LoginCall={this.CommonLoginCall}/>:
                     this.state.OnboardingState === "CO" ? <CompanyDetails  authHeader={this.props.loginState.AuthHeader} Contact={this.props.loginState.MobileNo} LoginCall={this.CommonLoginCall}/> :
-                    this.state.OnboardingState === "CC" ? <Credit authHeader={this.props.loginState.AuthHeader}/>:
-                    this.state.OnboardingState === "Q1" ? <QuestionSet1 />:
-                    this.state.OnboardingState === "Q2" ? <QuestionSet2 />:
-                    this.state.OnboardingState === "Q3" ? <QuestionSet3 />:null}
+                    this.state.OnboardingState === "CC" ? <Credit authHeader={this.props.loginState.AuthHeader} LoginCall={this.CommonLoginCall} UserId={this.props.loginState.UserId}/>:
+                    this.state.OnboardingState === "Q1" ? <QuestionSet1 authHeader={this.props.loginState.AuthHeader} LoginCall={this.CommonLoginCall} userId={this.props.loginState.UserId} />:
+                    this.state.OnboardingState === "Q2" ? <QuestionSet2 authHeader={this.props.loginState.AuthHeader} LoginCall={this.CommonLoginCall} userId={this.props.loginState.UserId}/>:
+                    this.state.OnboardingState === "Q3" ? <QuestionSet3 authHeader={this.props.loginState.AuthHeader} LoginCall={this.CommonLoginCall} userId={this.props.loginState.UserId}/>:null}
                    
                 </View>
             </ScrollView>

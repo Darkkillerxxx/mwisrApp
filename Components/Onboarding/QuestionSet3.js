@@ -1,5 +1,7 @@
 import React,{Component} from 'react';
 import { StyleSheet, Text, View,Image,TextInput, Button,TouchableWithoutFeedback,findNodeHandle } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {upsertCustomerAnswers} from '../../Utils/api'
 import { RadioButton } from 'react-native-paper';
 import Container from '../MiniComponent/Container'
 import Card from '../MiniComponent/Card'
@@ -14,95 +16,170 @@ class QuestionSet3 extends React.Component{
     {
         super();
         this.state={
-
+            QuestionAnswers:[{
+                optionId:1,
+                optionSubId:1,
+                optionValue:null,
+                questionId:7
+              },
+              {
+                optionId:1,
+                optionSubId:1,
+                optionValue:null,
+                questionId:8
+              },
+              {
+                optionId:1,
+                optionSubId:1,
+                optionValue:null,
+                questionId:9
+              }
+            ],
+            ErrorCode:0,
+            isLoading:false
         }
     }
+
+    onMoneyBackChange=(value)=>{
+        let temp=this.state.QuestionAnswers;
+        temp[0].optionId=value;
+        this.setState({QuestionAnswers:temp},()=>{
+          console.log(this.state.QuestionAnswers)
+        })
+      }
+      
+      onAttitudeChange=(value)=>{
+        let temp=this.state.QuestionAnswers;
+        temp[1].optionId=value;
+        this.setState({QuestionAnswers:temp},()=>{
+          console.log(this.state.QuestionAnswers)
+        })
+      }
+      
+      onPortfolioChange=(value)=>{
+        let temp=this.state.QuestionAnswers;
+        temp[2].optionId=value;
+        this.setState({QuestionAnswers:temp},()=>{
+          console.log(this.state.QuestionAnswers)
+        })
+      }
+
+      onSubmitQuestionSet3=()=>{
+        this.setState({isLoading:true})
+          this.state.QuestionAnswers.forEach((element,index) => {
+            let payload={
+              userId:this.props.userId,
+              optionId:element.optionId,
+              optionSubId:element.optionSubId,
+              optionValue:element.optionValue,
+              questionId:element.questionId
+            }
+            // console.log(payload)
+            upsertCustomerAnswers(this.props.authHeader,payload).then((result)=>{
+              if(result.IsSuccess)
+              {
+                if(index === 2)
+                {
+                  this.props.LoginCall()
+                  this.setState({isLoading:false})
+                }
+              }
+              else
+              {
+
+              }
+            })
+          });
+      }
 
     render()
     {
         return(
-                <Container>
+                <Container style={style.OverideContainer}>
+                   <Spinner
+                      visible={this.state.isLoading}
+                      textContent={'Loading...'}
+                      textStyle={{color:'white'}}
+                    />
                      <Card>
                         <BoldText>Question Set 3</BoldText>
                         <NormalText>Fields Marked With (*) Are Mandatory</NormalText>
 
-                        
                         <InputContainer>
-                            <NormalText style={style.OverideNormalText}>(*) When Do You Want Your Money Back ?</NormalText>
+                            <NormalText style={style.OverideNormalText2}>(*) When Do You Want Your Money Back ?</NormalText>
                             <RadioButton.Group
-                                onValueChange={(v) => {}}>
+                                onValueChange={this.onMoneyBackChange}>
                                 <RBContainer >
-                                    <RadioButton value="first" status={'checked'}/>
+                                    <RadioButton value={1} status={this.state.QuestionAnswers[0].optionId === 1 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Short Term(Within a Year)</NormalText>
                                 </RBContainer>
 
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={2} status={this.state.QuestionAnswers[0].optionId === 2 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Medium Term (Between 1-3 Years)</NormalText>
                                 </RBContainer>
                             
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={3} status={this.state.QuestionAnswers[0].optionId === 3 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Long Term(After 3 Years)</NormalText>
                                 </RBContainer>
 
                             </RadioButton.Group>
 
-                            <NormalText style={style.OverideNormalText}>(*) Which of these below statements describes your attitude towards the performance of your investment over next three months?</NormalText>
+                            <NormalText style={style.OverideNormalText2}>(*) Which of these below statements describes your attitude towards the performance of your investment over next three months?</NormalText>
                             <RadioButton.Group
-                                onValueChange={(v) => {}}>
+                                onValueChange={this.onAttitudeChange}>
                                 <RBContainer >
-                                    <RadioButton value="first" status={'checked'}/>
+                                    <RadioButton value={1} status={this.state.QuestionAnswers[1].optionId === 1 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Would have hard time accepting my declines</NormalText>
                                 </RBContainer>
 
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={2} status={this.state.QuestionAnswers[1].optionId === 2 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Can only tolerate short term fluctuations.</NormalText>
                                 </RBContainer>
                             
-
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={3} status={this.state.QuestionAnswers[1].optionId === 3 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>If my investment declined over 20%,then i would be concerned.</NormalText>
                                 </RBContainer>
                             
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={4} status={this.state.QuestionAnswers[1].optionId === 4 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>I would not worry about market fluctuations.</NormalText>
                                 </RBContainer>
 
                             </RadioButton.Group>
 
                             
-                            <NormalText style={style.OverideNormalText}>(*) Which are the following Portfolio You are likely to Invest in?</NormalText>
+                            <NormalText style={style.OverideNormalText2}>(*) Which are the following Portfolio You are likely to Invest in?</NormalText>
                             <RadioButton.Group
-                                onValueChange={(v) => {}}>
+                                onValueChange={this.onPortfolioChange}>
                                 <RBContainer >
-                                    <RadioButton value="first" status={'checked'}/>
+                                    <RadioButton value={1} status={this.state.QuestionAnswers[2].optionId === 1 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Portfolio A : With a Gauranted return of 7.5 p.a,with no probability of loss.</NormalText>
                                 </RBContainer>
 
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={2} status={this.state.QuestionAnswers[2].optionId === 2 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Portfolio B:With a likely return of 15% with aprobability of 5% loss.</NormalText>
                                 </RBContainer>
                             
 
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={3} status={this.state.QuestionAnswers[2].optionId === 3 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Portfolio C:With a likely return of 25% with probability of 12% loss.</NormalText>
                                 </RBContainer>
                             
                                 <RBContainer >
-                                    <RadioButton value="first" status={'unchecked'}/>
+                                    <RadioButton value={4} status={this.state.QuestionAnswers[2].optionId === 4 ? "checked":"unchecked"}/>
                                     <NormalText style={style.OverideNormalText}>Portfolio D:With a likely return of 50% with a propbablity of 25% loss.</NormalText>
                                 </RBContainer>
 
                             </RadioButton.Group>
     
                             <View style={style.ButtonContainer}>
-                                <Button title="Proceed" onPress={()=>this.props.navigation.navigate('RegistrationDetails')} color="#f5bb18" />
+                                <Button title="Proceed" onPress={()=>this.onSubmitQuestionSet3()} color="#f5bb18" />
                             </View>
 
                         </InputContainer>
@@ -115,6 +192,9 @@ class QuestionSet3 extends React.Component{
 }
 
 const style=StyleSheet.create({
+  OverideContainer:{
+    marginTop:35
+  },
     TextInput:{
         borderRadius:20,
         borderColor:'#d3d7dc',
@@ -126,8 +206,13 @@ const style=StyleSheet.create({
     },
     OverideNormalText:{
         marginBottom:5,
-        marginTop:10,
+        marginTop:7,
         opacity:0.6
+    },
+    OverideNormalText2:{
+      marginBottom:5,
+      marginTop:25,
+      opacity:0.6
     },
     ButtonContainer:{
         width:"90%",
